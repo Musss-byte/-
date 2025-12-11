@@ -36,7 +36,13 @@
 
 <!-- CART SIDEBAR -->
 <div id="cartSidebar" class="fixed top-0 right-0 w-80 h-full bg-white shadow-2xl p-5 transform translate-x-full transition-all duration-300 z-[60] overflow-y-auto">
-  <h2 class="text-xl font-semibold mb-3">Keranjang</h2>
+  <div class="flex items-center justify-between mb-3">
+  <h2 class="text-2xl font-semibold text-[#244b2f]">Keranjang</h2>
+  <button id="closeCart" class="text-xl px-2 text-[#244b2f] hover:text-red-500 transition">
+    ✖
+  </button>
+</div>
+
   <div id="cartList" class="flex flex-col gap-3"></div>
 
   <div class="border-t mt-4 pt-4">
