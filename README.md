@@ -76,6 +76,12 @@
     <input id="jarak" type="number" placeholder="Jarak (KM)"
            class="w-full mb-2 px-3 py-2 border rounded">
 
+    <!-- AMBIL LOKASI OTOMATIS -->
+    <button onclick="ambilLokasi()" class="w-full bg-green-800 text-white py-2 rounded mb-4">
+      📍 Ambil Lokasi Otomatis (GPS)
+    </button>
+    <p id="lokasi-info" class="text-sm text-green-800 mb-4"></p>
+
     <!-- METODE PEMBAYARAN -->
     <label class="font-semibold">Metode Pembayaran:</label>
     <select id="payment" class="w-full px-3 py-2 border rounded mt-2">
@@ -103,15 +109,32 @@
     </p>
 
     <h3 class="font-bold text-green-900 text-lg mt-6">Contact</h3>
-    <p class="text-green-800">WhatsApp: 0838-7952-8983</p>
-    <p class="text-green-800">Email: Tomodachimatcha@gmail.com</p>
+    <p class="text-green-800">WhatsApp: 0812-3456-7890</p>
+    <p class="text-green-800">Email: hello@tomodachimatcha.com</p>
+
+    <!-- GOOGLE MAPS (Lokasi Bisnis Kamu) -->
+    <h3 class="font-bold text-green-900 text-lg mt-10">Lokasi Kami</h3>
+
+    <div class="max-w-xl mx-auto mt-4 rounded-xl overflow-hidden shadow-lg border border-green-200">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3962.597037968024!2d106.812854!3d-6.563240!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69c9eba0f32ef7%3A0x7c8e3f3bb4a7ed2d!2sJl.%20Pembangunan%2C%20Kedung%20Halang%2C%20Bogor%20Utara%2C%20Kota%20Bogor!5e0!3m2!1sid!2sid!4v1700000000001!"
+        width="100%"
+        height="300"
+        style="border:0;"
+        allowfullscreen=""
+        loading="lazy">
+      </iframe>
+    </div>
 
     <p class="text-green-900 mt-6 text-sm">© 2025 Tomodachi Matcha. All Rights Reserved.</p>
   </footer>
 
+
   <!-- SCRIPT -->
   <script>
-    /* PRODUK */
+    /* ============================================
+       PRODUK
+    ============================================ */
     const products = [
       { id: 1, name: "Matcha Premium 100gr", price: 55000, img: "https://i.imgur.com/e0S1ZfP.jpeg" },
       { id: 2, name: "Matcha Latte Mix", price: 45000, img: "https://i.imgur.com/5ZQqR7a.jpeg" },
@@ -135,10 +158,11 @@
       `).join("");
     }
 
-    /* KERANJANG */
+    /* ============================================
+       KERANJANG
+    ============================================ */
     function toggleCart() {
-      const panel = document.getElementById("cart-panel");
-      panel.classList.toggle("translate-x-full");
+      document.getElementById("cart-panel").classList.toggle("translate-x-full");
       renderCart();
     }
 
@@ -166,7 +190,9 @@
       localStorage.setItem("cart", JSON.stringify(cart));
     }
 
-    /* KUPON */
+    /* ============================================
+       KUPON
+    ============================================ */
     const coupons = {
       MATCHA100: { type: "percent", value: 10, min: 100000 },
       MATCHA20: { type: "percent", value: 20, min: 150000 },
@@ -187,7 +213,58 @@
       renderCart();
     }
 
-    /* RINGKASAN TOTAL */
+    /* ============================================
+       GPS → Hitung Jarak ke Lokasi Bisnis
+    ============================================ */
+
+    // Koordinat Toko
+    const toko = {
+      lat: -6.563240, 
+      lng: 106.812854 
+    };
+
+    // Fungsi hitung jarak (Haversine)
+    function hitungJarak(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+
+      const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function ambilLokasi() {
+      if (!navigator.geolocation) {
+        alert("Browser Anda tidak mendukung GPS.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          const jarak = hitungJarak(lat, lng, toko.lat, toko.lng).toFixed(2);
+
+          document.getElementById("jarak").value = jarak;
+          document.getElementById("lokasi-info").innerText =
+            `Lokasi ditemukan! Estimasi jarak: ${jarak} KM`;
+
+          renderCart();
+        },
+        () => alert("Gagal mengambil lokasi. Izinkan akses GPS.")
+      );
+    }
+
+    /* ============================================
+       RINGKASAN TOTAL
+    ============================================ */
     function renderCart() {
       const cartDiv = document.getElementById("cart-items");
       const summary = document.getElementById("summary");
@@ -242,7 +319,9 @@
       document.getElementById("cart-count").innerText = `(${cart.length})`;
     }
 
-    /* CHECKOUT */
+    /* ============================================
+       CHECKOUT
+    ============================================ */
     function checkout() {
       const nama = document.getElementById("nama").value;
       const tel = document.getElementById("telepon").value;
@@ -283,7 +362,7 @@ Total: *Rp ${total.toLocaleString()}*
 Metode Pembayaran: ${payment}
       `;
 
-      window.open("https://wa.me/6283879528983?text=" + encodeURIComponent(pesan));
+      window.open("https://wa.me/6281234567890?text=" + encodeURIComponent(pesan));
     }
 
     renderProducts();
