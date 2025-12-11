@@ -1,445 +1,374 @@
-## package.json
-
-```json
-{
-  "name": "tomodachi-matcha",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.0",
-    "autoprefixer": "^10.4.0",
-    "gh-pages": "^5.0.0",
-    "postcss": "^8.4.0",
-    "tailwindcss": "^3.4.0",
-    "vite": "^5.0.0"
-  }
-}
-```
-
----
-
-## vite.config.js
-
-> Set `repoName` ke nama repo GitHub kamu (dipakai untuk `base`).
-
-```js
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-const repoName = 'REPLACE_WITH_YOUR_REPO' // contoh: 'tomodachi-matcha'
-
-export default defineConfig({
-  base: `/${repoName}/`,
-  plugins: [react()],
-})
-```
-
----
-
-## index.html
-
-```html
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tomodachi Matcha</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <!-- Google Identity Services -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
-```
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tomodachi Matcha — Premium Store</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
----
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #cfe8cf, #b5ddb5, #9fce9f);
+    }
+    .glass {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.4);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
 
-## tailwind.config.cjs
+<body class="min-h-screen">
 
-```js
-module.exports = {
-  content: ['./index.html', './src/**/*.{js,jsx}'],
-  theme: { extend: {} },
-  plugins: [],
-}
-```
+  <!-- NAVBAR -->
+  <nav class="glass fixed top-0 left-0 w-full z-50 p-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold text-green-900">🍵 Tomodachi Matcha</h1>
+    <button onclick="toggleCart()" class="px-4 py-2 bg-green-700 text-white rounded-lg">
+      Keranjang <span id="cart-count">(0)</span>
+    </button>
+  </nav>
 
----
+  <!-- CONTENT WRAPPER -->
+  <div class="pt-24 pb-20 px-4 max-w-5xl mx-auto">
 
-## postcss.config.cjs
+    <!-- PRODUK GRID -->
+    <h2 class="text-2xl font-bold text-green-900 mb-4">Produk Kami</h2>
 
-```js
-module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-```
+    <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+  </div>
 
----
-
-## src/styles.css
-
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-html, body, #root { height: 100%; }
-body { @apply bg-gradient-to-b from-green-50 via-green-100 to-green-50 text-gray-900; }
-```
-
----
-
-## src/data/products.js
-
-```js
-export const DEFAULT_PRODUCTS = [
-  {id:'m1', title:'Matcha Premium 100g', price:85000, img:'https://images.unsplash.com/photo-1521305916504-4a1121188589?w=800', desc:'Powder matcha grade premium.'},
-  {id:'m2', title:'Matcha Latte Mix 200g', price:120000, img:'https://images.unsplash.com/photo-1612874742651-d9f91b3d60c8?w=800', desc:'Mudah dibuat, rasa lembut.'},
-  {id:'m3', title:'Gift Box — Matcha Set', price:250000, img:'https://images.unsplash.com/photo-1546820389-44d77e1f3b31?w=800', desc:'Paket kado elegan.'},
-  {id:'m4', title:'Matcha Kit 150g', price:95000, img:'https://images.unsplash.com/photo-1611080629006-9c8f3dfe3b09?w=800', desc:'Kit matcha praktis.'},
-  {id:'m5', title:'Matcha Cookies', price:50000, img:'https://images.unsplash.com/photo-1612874742651-d9f91b3d60c8?w=800', desc:'Cookies renyah.'}
-]
-```
-
----
-
-## src/components/Header.jsx
-
-```jsx
-import React from 'react'
-
-export default function Header({ onToggleCart, cartCount, devControls }){
-  return (
-    <header className="bg-green-700 text-white px-6 py-4 shadow-md sticky top-0 z-10">
-      <div className="max-w-6xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold">🍵</div>
-          <div>
-            <h1 className="text-xl font-extrabold">Tomodachi Matcha</h1>
-            <p className="text-sm opacity-90">Matcha & minuman hijau — langsung ke WhatsApp</p>
-          </div>
-        </div>
-
-        <nav className="flex items-center gap-4">
-          <button onClick={()=>document.getElementById('produk')?.scrollIntoView({behavior:'smooth'})} className="text-white/90 hover:text-white transition">Produk</button>
-          <button onClick={onToggleCart} className="bg-white text-green-700 px-4 py-2 rounded-md font-semibold shadow">Keranjang ({cartCount})</button>
-          {/* Developer controls rendered by parent into this container (if provided) */}
-          <div id="developer-buttons" className="flex gap-2">{devControls}</div>
-        </nav>
-      </div>
-    </header>
-  )
-}
-```
-
----
-
-## src/components/ProductCard.jsx
-
-```jsx
-import React from 'react'
-
-export default function ProductCard({ p, onAdd, isDev, onUpload }){
-  return (
-    <article className="bg-white rounded-2xl shadow p-4 flex flex-col">
-      <img src={p.img} alt={p.title} className="rounded-xl object-cover h-40 w-full mb-3" />
-      <h3 className="font-semibold text-lg">{p.title}</h3>
-      <p className="text-sm text-gray-600 mb-3">{p.desc}</p>
-      <div className="mt-auto flex items-center justify-between">
-        <div className="text-lg font-bold">{new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR'}).format(p.price)}</div>
-        <div className="flex gap-2">
-          <button onClick={()=>onAdd(p)} className="bg-green-700 text-white px-3 py-2 rounded-lg">Tambah</button>
-        </div>
-      </div>
-      {isDev && (
-        <input type="file" accept="image/*" className="mt-2" onChange={(e)=>onUpload(e,p.id)} />
-      )}
-    </article>
-  )
-}
-```
-
----
-
-## src/components/CheckoutModal.jsx
-
-```jsx
-import React from 'react'
-
-export default function CheckoutModal({ open, onClose, subtotal, onCheckout }){
-  if(!open) return null
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-2xl rounded-2xl p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-2xl font-bold">Checkout</h3>
-            <p className="text-sm text-gray-600">Isi data pengiriman dan pilih metode pembayaran.</p>
-          </div>
-          <button onClick={onClose} className="text-gray-500">Tutup</button>
-        </div>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium">Nama</label>
-            <input id="customer-name" type="text" className="mt-1 block w-full rounded-md border px-3 py-2" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Telepon</label>
-            <input id="customer-phone" type="text" className="mt-1 block w-full rounded-md border px-3 py-2" />
-          </div>
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium">Alamat</label>
-            <textarea id="customer-address" className="mt-1 block w-full rounded-md border px-3 py-2" />
-          </div>
-        </div>
-
-        <div className="mt-6 flex items-center justify-between">
-          <div>
-            <div className="font-medium">Subtotal</div>
-            <div className="text-2xl font-bold">{new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR'}).format(subtotal)}</div>
-          </div>
-          <div>
-            <button onClick={onCheckout} className="bg-green-700 text-white px-4 py-2 rounded">Pesan via WA</button>
-          </div>
-        </div>
-      </div>
+  <!-- KERANJANG SLIDE PANEL -->
+  <div id="cart-panel"
+       class="fixed top-0 right-0 w-80 h-full glass transform translate-x-full transition-all duration-300 z-50 p-4 overflow-y-auto">
+    
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">Keranjang</h2>
+      <button onclick="toggleCart()" class="text-red-500 text-xl">✖</button>
     </div>
-  )
-}
-```
 
----
+    <div id="cart-items" class="space-y-3"></div>
 
-## src/main.jsx
+    <hr class="my-4">
 
-```jsx
-import React from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App'
-import './styles.css'
-
-createRoot(document.getElementById('root')).render(<App />)
-```
-
----
-
-## src/App.jsx
-```jsx
-import React, { useEffect, useState, useCallback } from 'react'
-import Header from './components/Header'
-import ProductCard from './components/ProductCard'
-import CheckoutModal from './components/CheckoutModal'
-import { DEFAULT_PRODUCTS } from './data/products'
-
-// CONFIGA
-const GOOGLE_CLIENT_ID = 'REPLACE_WITH_GOOGLE_CLIENT_ID'
-const ALLOWED_DEVELOPERS = ['najassyariefmusyfie@gmail.com']
-
-export default function App(){
-  const [products, setProducts] = useState(()=> JSON.parse(localStorage.getItem('PRODUCTS')) || DEFAULT_PRODUCTS)
-  const [cart, setCart] = useState([])
-  const [isDev, setIsDev] = useState(()=> JSON.parse(localStorage.getItem('IS_DEV')) || false)
-  const [devLoggedIn, setDevLoggedIn] = useState(false)
-  const [devEmail, setDevEmail] = useState(null)
-  const [checkoutOpen, setCheckoutOpen] = useState(false)
-
-  // Persist products & dev flag
-  useEffect(()=>{ localStorage.setItem('PRODUCTS', JSON.stringify(products)) }, [products])
-  useEffect(()=>{ localStorage.setItem('IS_DEV', JSON.stringify(isDev)) }, [isDev])
-
-  // Initialize Google Identity
-  useEffect(()=>{
-    if(window.google && GOOGLE_CLIENT_ID){
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleCredentialResponse,
-        ux_mode: 'popup'
-      })
-      // render button into .g_id_signin container
-      const container = document.querySelector('.g_id_signin')
-      if(container){
-        container.innerHTML = ''
-        window.google.accounts.id.renderButton(container, { theme: 'outline', size: 'large' })
-      }
-    }
-  }, [])
-
-  // Credential callback
-  const handleCredentialResponse = useCallback((response) => {
-    try{
-      const payload = JSON.parse(atob(response.credential.split('.')[1]))
-      const email = payload.email
-      if(ALLOWED_DEVELOPERS.includes(najassyariefmusyfie@gmail.com)){
-        setDevLoggedIn(true)
-        setDevEmail(najassyariefmusyfie@gmail.com)
-      } else {
-        alert(`Akun ${email} tidak memiliki akses developer.`)
-      }
-    } catch(e){ console.error('Failed to parse credential', e) }
-  }, [])
-
-  // When devLoggedIn changes, render developer controls into header via state
-  useEffect(()=>{
-    // no-op; header will receive dev controls via JSX (see render below)
-  }, [devLoggedIn, isDev])
-
-  // Add to cart
-  function addToCart(p){
-    setCart(prev=>{
-      const found = prev.find(x=>x.id===p.id)
-      if(found) return prev.map(x=>x.id===p.id?{...x,qty:x.qty+1}:x)
-      return [...prev,{...p,qty:1}]
-    })
-  }
-
-  // Upload image (developer only)
-  function uploadImage(e, productId){
-    const file = e.target.files[0]
-    if(!file) return
-    const fr = new FileReader()
-    fr.onload = ()=>{
-      setProducts(prev => prev.map(p => p.id===productId?{...p,img:fr.result}:p))
-    }
-    fr.readAsDataURL(file)
-  }
-
-  // Checkout via WA
-  function handleCheckout(){
-    const name = document.getElementById('customer-name')?.value || ''
-    const phone = document.getElementById('customer-phone')?.value || ''
-    const address = document.getElementById('customer-address')?.value || ''
-    if(cart.length===0) return alert('Keranjang kosong')
-    const lines = ['Halo Tomodachi Matcha 👋','Saya ingin memesan:']
-    cart.forEach((it,i)=> lines.push(`${i+1}. ${it.title} — ${it.qty} x ${new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR'}).format(it.price)} = ${new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR'}).format(it.price*it.qty)}`))
-    lines.push(`Subtotal: ${new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR'}).format(cart.reduce((s,it)=>s+it.price*it.qty,0))}`)
-    if(name) lines.push(`Nama: ${name}`)
-    if(phone) lines.push(`Telepon: ${phone}`)
-    if(address) lines.push(`Alamat: ${address}`)
-    const msg = encodeURIComponent(lines.join('
-'))
-    window.open(`https://wa.me/+6283879528983?text=${msg}`,'_blank')
-    setCheckoutOpen(false)
-  }
-
-  const subtotal = cart.reduce((s,it)=>s+it.price*it.qty,0)
-
-  // Render developer control buttons as React nodes
-  const devControls = devLoggedIn ? (
-    <>
-      <button onClick={()=>setIsDev(v=>{ const nv=!v; localStorage.setItem('IS_DEV', JSON.stringify(nv)); return nv })} className="bg-green-700 text-white px-3 py-2 rounded">
-        {isDev ? 'Matikan Mode Developer' : 'Aktifkan Mode Developer'}
-      </button>
-      <button onClick={()=>{ setDevLoggedIn(false); setDevEmail(null); setIsDev(false); /* optional: disable auto-select */ if(window.google && window.google.accounts && window.google.accounts.id) window.google.accounts.id.disableAutoSelect(); }} className="bg-red-600 text-white px-3 py-2 rounded">
-        Logout Developer
-      </button>
-    </>
-  ) : null
-
-  return (
+    <!-- KUPON -->
     <div>
-      <Header onToggleCart={()=>document.getElementById('cart-sidebar')?.classList.toggle('hidden')} cartCount={cart.reduce((s,i)=>s+i.qty,0)} devControls={devControls} />
+      <label class="font-semibold">Kupon Diskon:</label>
+      <input id="coupon" type="text" placeholder="Masukkan kupon"
+             class="w-full mt-1 px-3 py-2 border rounded">
+      <button onclick="applyCoupon()"
+              class="w-full mt-2 bg-green-700 text-white py-2 rounded">Gunakan Kupon</button>
+      <p id="coupon-info" class="text-sm text-green-700 mt-1"></p>
+    </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-4">
-        <div className="g_id_signin" />
-      </div>
+    <hr class="my-4">
 
-      <main className="max-w-6xl mx-auto px-6 py-10">
-        <section id="produk" className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold mb-4">Produk</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {products.map(p=> <ProductCard key={p.id} p={p} onAdd={addToCart} isDev={isDev} onUpload={uploadImage} />)}
-            </div>
+    <!-- ALAMAT -->
+    <h3 class="font-bold mb-2">Alamat Pengiriman</h3>
+
+    <input id="nama" type="text" placeholder="Nama Lengkap"
+           class="w-full mb-2 px-3 py-2 border rounded">
+    <input id="telepon" type="text" placeholder="Nomor Telepon"
+           class="w-full mb-2 px-3 py-2 border rounded">
+    <textarea id="alamat" placeholder="Alamat Lengkap"
+              class="w-full mb-2 px-3 py-2 border rounded"></textarea>
+
+    <input id="jarak" type="number" placeholder="Jarak (KM)"
+           class="w-full mb-2 px-3 py-2 border rounded">
+
+    <!-- AMBIL LOKASI OTOMATIS -->
+    <button onclick="ambilLokasi()" class="w-full bg-green-800 text-white py-2 rounded mb-4">
+      📍 Ambil Lokasi Otomatis (GPS)
+    </button>
+    <p id="lokasi-info" class="text-sm text-green-800 mb-4"></p>
+
+    <!-- METODE PEMBAYARAN -->
+    <label class="font-semibold">Metode Pembayaran:</label>
+    <select id="payment" class="w-full px-3 py-2 border rounded mt-2">
+      <option value="COD">COD (Bayar di Tempat)</option>
+      <option value="TRANSFER">Transfer Bank</option>
+    </select>
+
+    <hr class="my-4">
+
+    <!-- TOTAL -->
+    <div id="summary" class="space-y-1 text-green-900 font-medium"></div>
+
+    <button onclick="checkout()"
+            class="w-full mt-4 bg-green-700 text-white py-3 rounded-lg text-lg font-bold">
+      Checkout via WhatsApp
+    </button>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="mt-16 glass text-center py-6">
+    <h3 class="font-bold text-green-900 text-lg">Tentang Kami</h3>
+    <p class="max-w-xl mx-auto text-green-800 mt-2 px-6">
+      Tomodachi Matcha adalah brand matcha premium dengan kualitas terbaik, 
+      menghadirkan cita rasa Jepang autentik serta manfaat kesehatan.
+    </p>
+
+    <h3 class="font-bold text-green-900 text-lg mt-6">Contact</h3>
+    <p class="text-green-800">WhatsApp: 0838-7952-8983</p>
+    <p class="text-green-800">Email: Tomodachimatcha@gmail.com</p>
+
+    <!-- GOOGLE MAPS (JL pembangunan RT 02 RW 05 Kedung Halang Bogor Utara Kota Bogor) -->
+    <h3 class="font-bold text-green-900 text-lg mt-10">Lokasi Kami</h3>
+
+    <div class="max-w-xl mx-auto mt-4 rounded-xl overflow-hidden shadow-lg border border-green-200">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3962.597037968024!2d106.812854!3d-6.563240!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69c9eba0f32ef7%3A0x7c8e3f3bb4a7ed2d!2sJl.%20Pembangunan%2C%20Kedung%20Halang%2C%20Bogor%20Utara%2C%20Kota%20Bogor!5e0!3m2!1sid!2sid!4v1700000000001!"
+        width="100%"
+        height="300"
+        style="border:0;"
+        allowfullscreen=""
+        loading="lazy">
+      </iframe>
+    </div>
+
+    <p class="text-green-900 mt-6 text-sm">© 2025 Tomodachi Matcha. All Rights Reserved.</p>
+  </footer>
+
+
+  <!-- SCRIPT -->
+  <script>
+    /* ============================================
+       PRODUK
+    ============================================ */
+    const products = [
+      { id: 1, name: "Matcha Premium 100gr", price: 55000, img: "https://i.imgur.com/e0S1ZfP.jpeg" },
+      { id: 2, name: "Matcha Latte Mix", price: 45000, img: "https://i.imgur.com/5ZQqR7a.jpeg" },
+      { id: 3, name: "Matcha Ceremonial", price: 120000, img: "https://i.imgur.com/nXPQm6C.jpeg" },
+      { id: 4, name: "Hojicha Powder", price: 38000, img: "https://i.imgur.com/5ZQeZr0.jpeg" },
+      { id: 5, name: "Matcha Cookies", price: 30000, img: "https://i.imgur.com/UlgL6c3.jpeg" }
+    ];
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    function renderProducts() {
+      const container = document.getElementById("product-list");
+      container.innerHTML = products.map(p => `
+        <div class="glass rounded-xl p-4">
+          <img src="${p.img}" class="w-full h-40 object-cover rounded-lg">
+          <h3 class="text-lg font-bold mt-2 text-green-900">${p.name}</h3>
+          <p class="text-green-800 font-semibold mb-2">Rp ${p.price.toLocaleString()}</p>
+          <button onclick="addToCart(${p.id})"
+                  class="w-full bg-green-700 text-white py-2 rounded">Tambah</button>
+        </div>
+      `).join("");
+    }
+
+    /* ============================================
+       KERANJANG
+    ============================================ */
+    function toggleCart() {
+      document.getElementById("cart-panel").classList.toggle("translate-x-full");
+      renderCart();
+    }
+
+    function addToCart(id) {
+      const item = cart.find(i => i.id === id);
+      if (item) item.qty++;
+      else cart.push({ ...products.find(p => p.id === id), qty: 1 });
+
+      saveCart();
+      renderCart();
+    }
+
+    function updateQty(id, delta) {
+      const item = cart.find(i => i.id === id);
+      if (!item) return;
+      
+      item.qty += delta;
+      if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+
+      saveCart();
+      renderCart();
+    }
+
+    function saveCart() {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+
+    /* ============================================
+       KUPON
+    ============================================ */
+    const coupons = {
+      MATCHA100: { type: "percent", value: 10, min: 100000 },
+      MATCHA20: { type: "percent", value: 20, min: 150000 },
+      HEMAT5: { type: "flat", value: 5000, min: 0 }
+    };
+
+    let appliedCoupon = null;
+
+    function applyCoupon() {
+      const code = document.getElementById("coupon").value.toUpperCase();
+      if (!coupons[code]) {
+        document.getElementById("coupon-info").innerText = "Kupon tidak valid.";
+        appliedCoupon = null;
+      } else {
+        appliedCoupon = coupons[code];
+        document.getElementById("coupon-info").innerText = "Kupon diterapkan!";
+      }
+      renderCart();
+    }
+
+    /* ============================================
+       GPS → Hitung Jarak ke Lokasi Bisnis
+    ============================================ */
+
+    // Koordinat Toko
+    const toko = {
+      lat: -6.563240, 
+      lng: 106.812854 
+    };
+
+    // Fungsi hitung jarak (Haversine)
+    function hitungJarak(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+
+      const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function ambilLokasi() {
+      if (!navigator.geolocation) {
+        alert("Browser Anda tidak mendukung GPS.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          const jarak = hitungJarak(lat, lng, toko.lat, toko.lng).toFixed(2);
+
+          document.getElementById("jarak").value = jarak;
+          document.getElementById("lokasi-info").innerText =
+            `Lokasi ditemukan! Estimasi jarak: ${jarak} KM`;
+
+          renderCart();
+        },
+        () => alert("Gagal mengambil lokasi. Izinkan akses GPS.")
+      );
+    }
+
+    /* ============================================
+       RINGKASAN TOTAL
+    ============================================ */
+    function renderCart() {
+      const cartDiv = document.getElementById("cart-items");
+      const summary = document.getElementById("summary");
+
+      if (cart.length === 0) {
+        cartDiv.innerHTML = `<p class="text-gray-600">Keranjang kosong.</p>`;
+        summary.innerHTML = "";
+        document.getElementById("cart-count").innerText = "(0)";
+        return;
+      }
+
+      cartDiv.innerHTML = cart.map(i => `
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="font-semibold text-green-900">${i.name}</p>
+            <p class="text-sm">Rp ${i.price.toLocaleString()}</p>
+            <p class="text-sm">Subtotal: Rp ${(i.price * i.qty).toLocaleString()}</p>
           </div>
 
-          <aside id="cart-sidebar" className="bg-white p-4 rounded-2xl shadow-md hidden md:block">
-            <h3 className="font-bold text-lg">Ringkasan Keranjang</h3>
-            <div className="mt-3 space-y-3">
-              {cart.length===0 ? <p className="text-sm text-gray-600">Keranjang kosong — tambahkan produk.</p> : cart.map(it => (
-                <div key={it.id} className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <img src={it.img} className="w-14 h-14 rounded-md object-cover" />
-                    <div><div className="font-medium">{it.title}</div><div className="text-sm text-gray-600">{new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR'}).format(it.price)}</div></div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={()=>setCart(c=>c.map(x=>x.id===it.id?{...x,qty:Math.max(1,x.qty-1)}:x))} className="px-2 py-1 rounded border">-</button>
-                    <div className="w-6 text-center">{it.qty}</div>
-                    <button onClick={()=>setCart(c=>c.map(x=>x.id===it.id?{...x,qty:x.qty+1}:x))} className="px-2 py-1 rounded border">+</button>
-                    <button onClick={()=>setCart(c=>c.filter(x=>x.id!==it.id))} className="ml-2 text-sm text-red-500">Hapus</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 border-t pt-4">
-              <div className="flex justify-between font-semibold">Subtotal <span>{new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR'}).format(subtotal)}</span></div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button onClick={()=>setCheckoutOpen(true)} className="flex-1 bg-green-700 text-white py-2 rounded-lg font-semibold">Checkout</button>
-              </div>
-            </div>
-          </aside>
-        </section>
+          <div class="flex items-center space-x-2">
+            <button onclick="updateQty(${i.id}, -1)" class="px-2 bg-red-500 text-white rounded">-</button>
+            <span>${i.qty}</span>
+            <button onclick="updateQty(${i.id}, 1)" class="px-2 bg-green-700 text-white rounded">+</button>
+          </div>
+        </div>
+      `).join("");
 
-        <section className="mt-12 bg-white rounded-2xl p-6 shadow">
-          <h2 className="text-xl font-bold mb-2">Tentang Tomodachi Matcha</h2>
-          <p className="text-gray-700">Tomodachi Matcha menyediakan matcha berkualitas dengan kemasan rapi. Pesan cepat lewat WhatsApp — kami responsif dan siap bantu.</p>
-        </section>
-      </main>
+      const subtotal = cart.reduce((a, b) => a + b.price * b.qty, 0);
 
-      <footer className="text-center py-6 text-sm text-gray-700">© <span id="year">{new Date().getFullYear()}</span> Tomodachi Matcha — dibuat dengan ❤️</footer>
+      // Ongkir per km (Rp 2.000/km)
+      const jarak = parseFloat(document.getElementById("jarak").value || 0);
+      const ongkir = jarak * 2000;
 
-      <CheckoutModal open={checkoutOpen} onClose={()=>setCheckoutOpen(false)} subtotal={subtotal} onCheckout={handleCheckout} />
-    </div>
-  )
-}
-```
+      // Diskon
+      let diskon = 0;
+      if (appliedCoupon && subtotal >= appliedCoupon.min) {
+        diskon = appliedCoupon.type === "percent"
+          ? subtotal * (appliedCoupon.value / 100)
+          : appliedCoupon.value;
+      }
 
----
+      const total = subtotal + ongkir - diskon;
 
-## .github/workflows/deploy.yml
+      summary.innerHTML = `
+        <p>Subtotal: <span class="float-right">Rp ${subtotal.toLocaleString()}</span></p>
+        <p>Ongkir: <span class="float-right">Rp ${ongkir.toLocaleString()}</span></p>
+        <p>Diskon: <span class="float-right">- Rp ${diskon.toLocaleString()}</span></p>
+        <hr class="my-2">
+        <p class="font-bold">Total: <span class="float-right">Rp ${total.toLocaleString()}</span></p>
+      `;
 
-```yaml
-name: Deploy to GitHub Pages
+      document.getElementById("cart-count").innerText = `(${cart.length})`;
+    }
 
-on:
-  push:
-    branches:
-      - main
+    /* ============================================
+       CHECKOUT
+    ============================================ */
+    function checkout() {
+      const nama = document.getElementById("nama").value;
+      const tel = document.getElementById("telepon").value;
+      const alamat = document.getElementById("alamat").value;
+      const jarak = document.getElementById("jarak").value;
+      const payment = document.getElementById("payment").value;
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Install
-        run: npm ci
-      - name: Build
-        run: npm run build
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          publish_branch: gh-pages
-```
+      if (!nama || !tel || !alamat) {
+        alert("Lengkapi data pengiriman.");
+        return;
+      }
 
----
+      const subtotal = cart.reduce((a, b) => a + b.price * b.qty, 0);
+      const ongkir = jarak * 2000;
+      let diskon = 0;
+
+      if (appliedCoupon && subtotal >= appliedCoupon.min)
+        diskon = appliedCoupon.type === "percent"
+          ? subtotal * (appliedCoupon.value / 100)
+          : appliedCoupon.value;
+
+      const total = subtotal + ongkir - diskon;
+
+      const pesan = `
+*Checkout Tomodachi Matcha*
+Nama: ${nama}
+Telepon: ${tel}
+Alamat: ${alamat}
+
+Pesanan:
+${cart.map(i => `- ${i.name} x${i.qty}`).join("\n")}
+
+Subtotal: Rp ${subtotal.toLocaleString()}
+Ongkir: Rp ${ongkir.toLocaleString()}
+Diskon: Rp ${diskon.toLocaleString()}
+Total: *Rp ${total.toLocaleString()}*
+
+Metode Pembayaran: ${payment}
+      `;
+
+      window.open("https://wa.me/6283879528983?text=" + encodeURIComponent(pesan));
+    }
+
+    renderProducts();
+    renderCart();
+  </script>
+
+</body>
+</html>
