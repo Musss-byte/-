@@ -83,15 +83,6 @@
     <p class="mt-2 text-green-700" id="gps-result"></p>
   </section>
 
-  <!-- GOOGLE MAPS -->
-  <section class="px-6 mt-10">
-    <h3 class="text-xl font-bold">Lokasi Bisnis Kami</h3>
-    <p class="text-green-700">Jl Pembangunan RT 02 RW 05 Kedung Halang, Bogor Utara</p>
-    <div class="max-w-xl mt-4 rounded-xl overflow-hidden shadow-lg border border-green-200">
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3967.31372696543!2d106.8279876!3d-6.562045199999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69c9c81cecc7df%3A0x8a83b2e1fa89bbf0!2sKedung%20Halang%2C%20Bogor%20Utara!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid" width="100%" height="300" allowfullscreen loading="lazy"></iframe>
-    </div>
-  </section>
-
   <!-- ABOUT -->
   <section class="px-6 mt-10">
     <h3 class="text-xl font-bold">Tentang Kami</h3>
@@ -112,11 +103,12 @@
 
   <!-- SIDEBAR KERANJANG -->
   <div id="cart-panel" class="fixed top-0 right-0 w-80 h-full bg-white shadow-xl p-5 border-l border-green-200 z-50">
-    <h2 class="text-xl font-bold mb-3">Keranjang</h2>
+    <h2 class="text-xl font-bold mb-3 flex justify-between items-center">Keranjang 
+      <button onclick="closeCart()" class="bg-red-500 text-white px-2 py-1 rounded">X</button>
+    </h2>
     <div id="cart-items" class="mb-4"></div>
     <p class="font-bold">Total: Rp <span id="total-price">0</span></p>
     <button onclick="openCheckout()" class="w-full bg-green-600 text-white py-2 rounded-lg mt-4">Checkout via WhatsApp</button>
-    <button onclick="closeCart()" class="w-full bg-red-500 text-white py-2 rounded-lg mt-2">Tutup</button>
   </div>
 
   <!-- MODAL CHECKOUT -->
@@ -128,7 +120,6 @@
       <input id="buyer-wa" placeholder="Nomor WhatsApp" class="w-full border p-2 rounded mb-3">
       <p class="font-bold">Ongkir otomatis: <span id="ongkir-display">Rp 0</span></p>
 
-      <!-- Metode Pembayaran -->
       <div class="flex flex-col gap-2 mb-3">
         <button onclick="pilihMetode('cod')" class="bg-yellow-500 text-white py-2 rounded-lg">COD (Bayar di Tempat)</button>
         <button onclick="pilihMetode('transfer'); openTransfer()" class="bg-blue-500 text-white py-2 rounded-lg">Transfer Bank</button>
@@ -173,7 +164,6 @@
     </div>
   </div>
 
-  <!-- SCRIPT -->
   <script>
 let cart=[]; let ongkirValue=0; const TOKO_LAT=-6.567778, TOKO_LON=106.825135;
 let pembayaranMetode="", buktiFoto=null;
@@ -217,6 +207,7 @@ function renderCart(){
 
 document.getElementById("cart-btn").onclick=()=>{ document.getElementById("cart-panel").classList.add("open"); }
 function closeCart(){ document.getElementById("cart-panel").classList.remove("open"); }
+
 function openCheckout(){ document.getElementById("checkout-modal").classList.remove("hidden"); ambilLokasiPembeli(); }
 function closeCheckout(){ document.getElementById("checkout-modal").classList.add("hidden"); }
 
@@ -236,7 +227,11 @@ function sendWa(){
   const alamat=document.getElementById("buyer-address").value;
   const wa=document.getElementById("buyer-wa").value;
   if(!nama||!alamat||!wa){ alert("Lengkapi data checkout."); return; }
-  if((pembayaranMetode==='qris'||pembayaranMetode==='transfer')&&!buktiFoto){ alert("Upload bukti pembayaran terlebih dahulu."); return; }
+  // Validasi bukti untuk QRIS & Transfer
+  if((pembayaranMetode==='qris'||pembayaranMetode==='transfer') && !buktiFoto){ 
+    alert("Upload bukti pembayaran terlebih dahulu sebelum mengirim pesanan."); 
+    return; 
+  }
 
   let cartText=cart.map(i=>`- ${i.name} (x${i.qty}) (Rp ${i.price*i.qty})`).join("\n");
   const totalHarga=cart.reduce((t,i)=>t+i.price*i.qty,0);
@@ -280,7 +275,7 @@ function getLocation(){
 }
 
 function closeBukti(){ document.getElementById("bukti-modal").classList.add("hidden"); }
-</script>
+  </script>
 
 </body>
 </html>
