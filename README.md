@@ -1,5 +1,4 @@
 <html lang="id">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -179,7 +178,8 @@
       Checkout via WhatsApp
     </button>
 
-    <button onclick="openQRIS()"
+    <!-- TOMBOL QRIS -->
+    <button id="qris-btn"
       class="w-full bg-green-700 text-white py-2 rounded-lg mt-4">
       Bayar dengan QRIS
     </button>
@@ -243,12 +243,32 @@
     const TOKO_LAT = -6.567778;
     const TOKO_LON = 106.825135;
 
+    const qrisBtn = document.getElementById("qris-btn");
+    const nameInput = document.getElementById("buyer-name");
+    const addressInput = document.getElementById("buyer-address");
+    const waInput = document.getElementById("buyer-wa");
+
+    // Fungsi cek input
+    function cekInputQRIS() {
+      if (nameInput.value.trim() && addressInput.value.trim() && waInput.value.trim()) {
+        qrisBtn.disabled = false;
+        qrisBtn.classList.remove("opacity-50", "cursor-not-allowed");
+      } else {
+        qrisBtn.disabled = true;
+        qrisBtn.classList.add("opacity-50", "cursor-not-allowed");
+      }
+    }
+
+    [nameInput, addressInput, waInput].forEach(el => {
+      el.addEventListener("input", cekInputQRIS);
+    });
+
+    cekInputQRIS(); // default disabled
+
     function addToCart(n, p) {
       cart.push({ name: n, price: p });
-
       document.getElementById("cart-count").innerText = cart.length;
       document.getElementById("cart-count").classList.remove("hidden");
-
       renderCart();
     }
 
@@ -266,29 +286,31 @@
         `;
       });
 
+      const subtotal = total + ongkirValue;
+
+      html += `
+        <div class="flex justify-between border-t font-bold py-2 mt-2">
+          <span>Ongkir</span>
+          <span>Rp ${ongkirValue}</span>
+        </div>
+        <div class="flex justify-between border-t font-bold py-2 mt-1">
+          <span>Subtotal</span>
+          <span>Rp ${subtotal}</span>
+        </div>
+      `;
+
       document.getElementById("cart-items").innerHTML = html;
-      document.getElementById("total-price").innerText = total;
+      document.getElementById("total-price").innerText = subtotal;
     }
 
-    // Open cart
     document.getElementById("cart-btn").onclick = () => {
       document.getElementById("cart-panel").classList.add("open");
     };
 
-    // Close cart
     function closeCart() {
       document.getElementById("cart-panel").classList.remove("open");
     }
 
-    // QRIS modal
-    function openQRIS() {
-      document.getElementById("qris-modal").classList.remove("hidden");
-    }
-    function closeQRIS() {
-      document.getElementById("qris-modal").classList.add("hidden");
-    }
-
-    // Checkout modal
     function openCheckout() {
       document.getElementById("checkout-modal").classList.remove("hidden");
       ambilLokasiPembeli();
@@ -297,7 +319,18 @@
       document.getElementById("checkout-modal").classList.add("hidden");
     }
 
-    // GPS hitung ongkir
+    qrisBtn.addEventListener("click", () => {
+      if (qrisBtn.disabled) {
+        alert("Harap lengkapi Nama, Alamat, dan Nomor WhatsApp sebelum membayar dengan QRIS.");
+        return;
+      }
+      document.getElementById("qris-modal").classList.remove("hidden");
+    });
+
+    function closeQRIS() {
+      document.getElementById("qris-modal").classList.add("hidden");
+    }
+
     function ambilLokasiPembeli() {
       if (!navigator.geolocation) {
         alert("GPS tidak tersedia.");
@@ -310,13 +343,13 @@
 
         const jarak = hitungJarak(lat, lon, TOKO_LAT, TOKO_LON);
 
-        ongkirValue = Math.round(jarak * 5000); // 5rb per km
-
+        ongkirValue = Math.round(jarak * 5000);
         document.getElementById("ongkir-display").innerText = "Rp " + ongkirValue;
+
+        renderCart();
       });
     }
 
-    // Rumus jarak
     function hitungJarak(lat1, lon1, lat2, lon2) {
       const R = 6371;
       let dLat = (lat2 - lat1) * Math.PI / 180;
@@ -331,21 +364,17 @@
       return R * c;
     }
 
-    // Checkout WA otomatis
     function sendWa() {
-      const nama = document.getElementById("buyer-name").value;
-      const alamat = document.getElementById("buyer-address").value;
-      const wa = document.getElementById("buyer-wa").value;
+      const nama = nameInput.value.trim();
+      const alamat = addressInput.value.trim();
+      const wa = waInput.value.trim();
 
       if (!nama || !alamat || !wa) {
         alert("Lengkapi data checkout terlebih dahulu.");
         return;
       }
 
-      let cartText = cart.map(i =>
-        `- ${i.name} (Rp ${i.price})`
-      ).join("\n");
-
+      let cartText = cart.map(i => `- ${i.name} (Rp ${i.price})`).join("\n");
       const totalHarga = cart.reduce((t, i) => t + i.price, 0);
       const totalAkhir = totalHarga + ongkirValue;
 
@@ -368,7 +397,6 @@ Terima kasih!
       window.open(`https://wa.me/628XXXXXX?text=${encodeURIComponent(message)}`);
     }
 
-    // GPS biasa (untuk tombol di halaman)
     function getLocation() {
       if (!navigator.geolocation) {
         document.getElementById("gps-result").innerText = "Browser tidak mendukung GPS.";
