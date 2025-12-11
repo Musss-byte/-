@@ -105,12 +105,11 @@
 </section>
 
 <!-- CONTACT -->
-<section class="px-6 mt-10">
-  <h3 class="text-xl font-bold">Kontak Kami</h3>
-  <p class="mt-2">📞 WhatsApp: <a href="https://wa.me/6283879528983 class="text-green-700 underline">Hubungi Kami</a></p>
-  <p>📍 Bogor Utara, Kota Bogor</p>
-</section>
-
+  <section class="px-6 mt-10">
+    <h3 class="text-xl font-bold">Kontak Kami</h3>
+    <p class="mt-2">📞 WhatsApp: <a href="https://wa.me/628XXXXXX" class="text-green-700 underline">Hubungi Kami</a></p>
+    <p>📍 Bogor Utara, Kota Bogor</p>
+  </section>
 <!-- FOOTER -->
 <footer class="text-center py-10 mt-10 text-green-800">
   <p>© 2025 Tomodachi Matcha. All Rights Reserved.</p>
