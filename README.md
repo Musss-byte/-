@@ -45,6 +45,26 @@
     ✖
   </button>
 </div>
+const cartOverlay = document.getElementById('cartOverlay');
+const closeCartBtn = document.getElementById('closeCart');
+
+// Buka cart
+document.getElementById('cartBtn').onclick = () => {
+  cartSidebar.classList.remove('translate-x-full');
+  cartOverlay.classList.remove('hidden');
+};
+
+// Tombol ✖
+closeCartBtn.onclick = () => {
+  cartSidebar.classList.add('translate-x-full');
+  cartOverlay.classList.add('hidden');
+};
+
+// Klik area luar
+cartOverlay.onclick = () => {
+  cartSidebar.classList.add('translate-x-full');
+  cartOverlay.classList.add('hidden');
+};
 
   <div id="cartList" class="flex flex-col gap-3"></div>
 
